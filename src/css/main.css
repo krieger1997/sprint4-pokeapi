@@ -1,0 +1,40 @@
+/* body{
+    background: #78C850;
+background: linear-gradient(45deg, #78C850 0%, #4E8234 100%); 
+} */
+/* body *{
+    box-sizing: content-box;
+} */
+body{
+    background: #e0e0e0 url("../img/container_bg.png");
+    /* background: #424242 url("../img/body_bg.png"); */
+}
+.footer{
+    min-height: 5rem;
+    /* padding-top: .5rem; */
+    /* display: flex;
+    justify-content: center; */
+}
+#buscarMas{
+    border:solid 4px #3b4cca;
+    background-color: #F8D030;
+    color: #212529;
+    font-weight: bolder;
+    /* height: 50%; */
+}
+#buscarMas:hover{
+    /* background-color: #b99316; */
+    background-color: #c5a62c;
+    /* background-color: #ffff00; */
+    /* ffd700 */
+
+}
+#inputDOMContent{
+    margin-bottom: 7rem;
+    margin-top: 7rem;
+}
+.pokemon-card{
+    -webkit-box-shadow: 0px 0px 18px 3px rgba(153,153,153,1);
+-moz-box-shadow: 0px 0px 18px 3px rgba(153,153,153,1);
+box-shadow: 0px 0px 18px 3px rgba(153,153,153,1);
+}
