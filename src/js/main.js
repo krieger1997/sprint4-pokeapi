@@ -5,57 +5,106 @@ const obtienePokemonLista = async (offset, limit) => {
   return data;
 };
 
-const obtienePokemonId = async (id) => {
-  const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
-  const data = await response.json();
-  return data;
+// const obtienePokemonId = async (id) => {
+//   const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
+//   const data = await response.json();
+//   return data;
+// };
+
+
+
+const obtienePokemonId = (id) => {
+  // const response =  fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
+  // const data =  response.json();
+  return new Promise((resolve, reject) => {
+    fetch(`https://pokeapi.co/api/v2/pokemon/${id}`).then(response => {
+      response.json().then(res => {
+        resolve(res);
+
+      });
+
+    }).catch(error => {
+      alert("ERROR AL OBTENER DATOS POR ID." + error.status)
+      reject(error)
+    })
+
+
+  })
+
+  // return data;
 };
 
 
-obtienePokemonLista().then(res=>{
+obtienePokemonLista().then(res => {
   //ID ES INDICE +1
   // console.table(res.results)
-  res.results.forEach(  (element,indice) => {
-
-      obtienePokemonId(indice+1).then(resp=>{
-       const {name,types,sprites,id} = resp;
-
-       let inputDOMContent = document.querySelector("#inputDOMContent");
-
-       inputDOMContent.innerHTML+=`
-      <div class="col-3 mb-3">
-        <div class="card pokemon-card"  >
-          <img src="${sprites.other['official-artwork'].front_default}" class="card-img-top" alt="IMAGEN ${name}">
-          <div class="card-body">
-            <h5 class="card-title">${name}</h5>
-            <p class="card-text">ID ${id}</p>
-            <a href="#" class="btn btn-success">hola</a>
-          </div>
-        </div>
-      </div>`
+  const resultados = res.results;
+  console.log("largo",resultados.length)
 
 
+  let recorre = (indice)=>{
+    obtienePokemonId(indice + 1).then(resp => {
+          const { name, types, sprites, id } = resp;
+      console.log(name)
+          let inputDOMContent = document.querySelector("#inputDOMContent");
+    
+          inputDOMContent.innerHTML += `
+          <div class="col-3 mb-3">
+            <div class="card pokemon-card"  >
+              <img src="${sprites.other['official-artwork'].front_default}" class="card-img-top" alt="IMAGEN ${name}">
+              <div class="card-body">
+                <h5 class="card-title text-capitalize">${name}</h5>
+                <p class="card-text">ID ${id}</p>
+                <a href="#" class="btn btn-success">hola</a>
+              </div>
+            </div>
+          </div>`;
+    
+          // types.forEach(tipo=>{
+          //   console.log("EL tipo: ",tipo.type.name)
+          // })
+    
+        })
+    
 
 
 
+    if(indice<resultados.length-1){
+      recorre(indice)
+    }
+  }
+  recorre(0)
 
 
-      // console.log("EL NAME: ",name)
 
-      // types.forEach(tipo=>{
-      //   console.log("EL tipo: ",tipo.type.name)
-      // })
+  // res.results.forEach(async (element, indice) => {
 
-      // console.log("IMAGEN",sprites.other['official-artwork'].front_default)
+  //   await obtienePokemonId(indice + 1).then(resp => {
+  //     const { name, types, sprites, id } = resp;
 
-      // console.log("LA ID",id)
+  //     let inputDOMContent = document.querySelector("#inputDOMContent");
 
-      // console.log("==========================================================================")
+  //     inputDOMContent.innerHTML += `
+  //     <div class="col-3 mb-3">
+  //       <div class="card pokemon-card"  >
+  //         <img src="${sprites.other['official-artwork'].front_default}" class="card-img-top" alt="IMAGEN ${name}">
+  //         <div class="card-body">
+  //           <h5 class="card-title text-capitalize">${name}</h5>
+  //           <p class="card-text">ID ${id}</p>
+  //           <a href="#" class="btn btn-success">hola</a>
+  //         </div>
+  //       </div>
+  //     </div>`;
+  //     // continue;
 
-     }) 
+  //     // types.forEach(tipo=>{
+  //     //   console.log("EL tipo: ",tipo.type.name)
+  //     // })
+
+  //   })
 
 
-  });
+  // });
 
 })
 
