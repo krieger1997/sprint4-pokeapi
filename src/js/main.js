@@ -1,17 +1,20 @@
 import { pokemonColors } from "./pokemonColors";
+import Chart from 'chart.js/auto';
+
 let OFFSET = 0;
 let DATAGLOBAL;
 let pokemonCards=[];
+
+//VARIABLES DEL DOM
 const inputDOMContent = document.querySelector("#inputDOMContent"),
   btnCargaMas = document.querySelector("#buscarMas"),
   btnLimpia = document.querySelector("#limpiar"),
   inpBusca = document.querySelector("#inpBusca"),
   modalPokeDetalle = new bootstrap.Modal(document.getElementById('modalPokeDetalle')),
-  modalPokeDetalleTitulo = document.querySelector("#modalPokeDetalleTitulo"),
-  modalPokeDetalleBody = document.querySelector("#modalPokeDetalleBody")
-  ;
+  modalPokeDetalleBody = document.querySelector("#modalPokeDetalleBody");
 
 
+//============================================ FUNCIONES ====================================================
 const obtieneDataGlobal = async () => {
   const response = await fetch(`https://pokeapi.co/api/v2/pokemon`);
   const data = await response.json();
@@ -26,17 +29,7 @@ const obtienePokemonLista = async (offset = 0, limit = 20) => {
   return data;
 };
 
-// const obtienePokemonId = async (id) => {
-//   const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
-//   const data = await response.json();
-//   return data;
-// };
-
-
-
 const obtienePokemonId = (id) => {
-  // const response =  fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
-  // const data =  response.json();
   return new Promise((resolve, reject) => {
     fetch(`https://pokeapi.co/api/v2/pokemon/${id}`).then(response => {
       response.json().then(res => {
@@ -52,7 +45,6 @@ const obtienePokemonId = (id) => {
 
   })
 
-  // return data;
 };
 
 const muestraCardPokemon = (data)=>{
@@ -146,6 +138,20 @@ const buscaPorNombre=async text=>{
     const data = await response.json();
     muestraCardPokemon(data);
   }
+  pokemonCards= document.querySelectorAll(".pokemon-card");
+  
+  pokemonCards.forEach(pokemonCard => {
+    pokemonCard.addEventListener('click', () => {
+      const idPokemon = pokemonCard.dataset.idpokemon;
+      obtienePokemonId(idPokemon).then(res=>{
+         console.log("DETALLE RES",res)
+         cargaModal(res)
+  
+      }).catch(error=>{
+        console.error(error)
+      })
+    });
+  });
 }
 
 inpBusca.addEventListener("keyup",async (event)=>{
@@ -159,7 +165,7 @@ inpBusca.addEventListener("keyup",async (event)=>{
 
 const cargaModal=data=>{
   console.log("estaestta",data)
-  const { name, types, sprites, id, height, weight } = data;
+  const { name, types, sprites, id, height, weight, stats } = data;
   let objColor = pokemonColors.find(obj => obj.type == types[0].type.name)
   let colorPrincipal = objColor.colors[0];
   let colorSecundario = objColor.colors[1];//variante oscura
@@ -195,8 +201,8 @@ const cargaModal=data=>{
       </div>
       <div style="width: 50%;">
         <h1>&nbsp;</h1>
-        <h4 style="color:white;" align="right">${height*0.1} m</h4>
-        <h4 style="color:white;" align="right">${weight*0.1} kg</h4>
+        <h4 style="color:white;" align="right">${(height*0.1).toFixed(1)} m</h4>
+        <h4 style="color:white;" align="right">${(weight*0.1).toFixed(1)} kg</h4>
         <h4 style="color:white;text-transform:capitalize;" align="right">${types[0].type.name}</h4>
       </div>
     </div>
@@ -207,15 +213,38 @@ const cargaModal=data=>{
 
     </div>
   </div>
-  <div class="row">
-    <div class="col-6">
-      AQUI EL CHART
+  <div class="row justify-content-center" >
+    <div class="col-8" >
+    <canvas id="poderesChart"></canvas>
     </div>
   </div>
 </div>
 </div>
-    
   `;
+const statsNombres = stats.map(stat=> stat.stat.name)
+const statsValor = stats.map(stat=> stat.base_stat)
+  
+  Chart.defaults.borderColor = '#fff0';
+  Chart.defaults.color = '#fff';
+  new Chart(document.getElementById('poderesChart'),
+   {
+    type: 'bar',
+    data: {
+      labels: statsNombres,
+      datasets: [{
+        label: 'Estadísticas',
+        data: statsValor,
+        backgroundColor: '#fff'
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      
+
+      
+      
+    }
+  });
 
 
 
