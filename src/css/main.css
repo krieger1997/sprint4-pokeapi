@@ -53,3 +53,7 @@ box-shadow: 0px 0px 18px 3px rgba(153,153,153,1);
     background-color: rgb(180, 180, 180);
     color: #212529;
 }
+
+.modal-header{
+    background-color: #212529;
+}
