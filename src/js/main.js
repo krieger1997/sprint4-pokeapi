@@ -50,36 +50,42 @@ const obtienePokemonId = (id) => {
   // return data;
 };
 
+const muestraCardPokemon = (data)=>{
+  const { name, types, sprites, id } = data;
+  let contenido = '';
+
+
+  contenido += `
+    <div class="col-lg-3 col-md-4 col-xs-2 col-sm-6 col-12 mb-3">
+      <div class="card pokemon-card"  >
+        <img src="${sprites.other['official-artwork'].front_default}" class="card-img-top" alt="IMAGEN ${name}">
+        <div class="card-body">
+          <h5 class="card-title text-capitalize fw-bold">${name}</h5>
+          <p class="card-text text-secondary">Id #${id.toString().padStart(4, '0')}</p>
+          <div class="d-flex justify-content-evenly">`;
+
+  types.forEach(tipo => {
+    let objColor = pokemonColors.find(obj => obj.type == tipo.type.name)
+    contenido += `<span class="badge" style="background-color:${objColor.colors[0]};color:white;">${tipo.type.name}</span>`;
+
+  })
+  contenido += `</div>
+        </div>
+      </div>
+    </div>`;
+
+  inputDOMContent.innerHTML += contenido;
+}
+
 const obtieneDetalle = async (res) => {
   for (const elem of res) {
     const response = await fetch(elem.url);
     const data = await response.json();
-    const { name, types, sprites, id } = data;
-    let contenido = '';
-
-
-    contenido += `
-      <div class="col-lg-3 col-md-4 col-xs-2 col-sm-6 col-12 mb-3">
-        <div class="card pokemon-card"  >
-          <img src="${sprites.other['official-artwork'].front_default}" class="card-img-top" alt="IMAGEN ${name}">
-          <div class="card-body">
-            <h5 class="card-title text-capitalize fw-bold">${name}</h5>
-            <p class="card-text text-secondary">Id #${id.toString().padStart(4, '0')}</p>
-            <div class="d-flex justify-content-evenly">`;
-
-    types.forEach(tipo => {
-      let objColor = pokemonColors.find(obj => obj.type == tipo.type.name)
-      contenido += `<span class="badge" style="background-color:${objColor.colors[0]};color:white;">${tipo.type.name}</span>`;
-
-    })
-    contenido += `</div>
-          </div>
-        </div>
-      </div>`;
-
-    inputDOMContent.innerHTML += contenido;
+    muestraCardPokemon(data);
   }
 }
+
+
 
 
 const carga20 = () => {
@@ -90,10 +96,10 @@ const carga20 = () => {
   })
 }
 
-const limpia = () => {
+const limpia = (carga=true) => {
   OFFSET = 0;
   inputDOMContent.innerHTML = '';
-  carga20();
+  if(carga) carga20();
 }
 
 btnCargaMas.addEventListener("click", carga20)
@@ -108,13 +114,19 @@ obtieneDataGlobal().then(async res => {
   console.log("DATAGLOBAL", DATAGLOBAL)
 });
 
-inpBusca.addEventListener("keyup",(event)=>{
+inpBusca.addEventListener("keyup",async (event)=>{
   if(event.target.value.toLowerCase() != ''){
     console.log(event.target.value.toLowerCase())
     console.log(DATAGLOBAL)
     const res = DATAGLOBAL.filter((pokemon) => {
-      return pokemon.name.startsWith(event.target.value.toLowerCase());
+      return pokemon.name==event.target.value.toLowerCase() || pokemon.name.startsWith(event.target.value.toLowerCase());
     });
+    limpia(false)
+    for (const elem of res) {
+      const response = await fetch(elem.url);
+      const data = await response.json();
+      muestraCardPokemon(data);
+    }
     console.log("RESULTADOOOOOOOOOSSSSSSSSS",res)
 
   }else{
