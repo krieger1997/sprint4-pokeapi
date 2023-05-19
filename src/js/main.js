@@ -1,7 +1,23 @@
-const obtienePokemonLista = async (offset, limit) => {
+import { pokemonColors } from "./pokemonColors";
+let OFFSET = 0;
+let DATAGLOBAL;
+const inputDOMContent = document.querySelector("#inputDOMContent"),
+  btnCargaMas = document.querySelector("#buscarMas"),
+  btnLimpia = document.querySelector("#limpiar"),
+  inpBusca = document.querySelector("#inpBusca");
+
+
+const obtieneDataGlobal = async () => {
+  const response = await fetch(`https://pokeapi.co/api/v2/pokemon`);
+  const data = await response.json();
+  return data;
+}
+
+
+
+const obtienePokemonLista = async (offset = 0, limit = 20) => {
   const response = await fetch(`https://pokeapi.co/api/v2/pokemon?offset=${offset}&limit=${limit}`);
   const data = await response.json();
-  console.log(data)
   return data;
 };
 
@@ -34,130 +50,77 @@ const obtienePokemonId = (id) => {
   // return data;
 };
 
-
-obtienePokemonLista().then(res => {
-  //ID ES INDICE +1
-  // console.table(res.results)
-  const resultados = res.results;
-  console.log("largo",resultados.length)
-
-
-  let recorre = (indice)=>{
-    obtienePokemonId(indice + 1).then(resp => {
-          const { name, types, sprites, id } = resp;
-      console.log(name)
-          let inputDOMContent = document.querySelector("#inputDOMContent");
-    
-          inputDOMContent.innerHTML += `
-          <div class="col-3 mb-3">
-            <div class="card pokemon-card"  >
-              <img src="${sprites.other['official-artwork'].front_default}" class="card-img-top" alt="IMAGEN ${name}">
-              <div class="card-body">
-                <h5 class="card-title text-capitalize">${name}</h5>
-                <p class="card-text">ID ${id}</p>
-                <a href="#" class="btn btn-success">hola</a>
-              </div>
-            </div>
-          </div>`;
-    
-          // types.forEach(tipo=>{
-          //   console.log("EL tipo: ",tipo.type.name)
-          // })
-    
-        })
-    
+const obtieneDetalle = async (res) => {
+  for (const elem of res) {
+    const response = await fetch(elem.url);
+    const data = await response.json();
+    const { name, types, sprites, id } = data;
+    let contenido = '';
 
 
+    contenido += `
+      <div class="col-lg-3 col-md-4 col-xs-2 col-sm-6 col-12 mb-3">
+        <div class="card pokemon-card"  >
+          <img src="${sprites.other['official-artwork'].front_default}" class="card-img-top" alt="IMAGEN ${name}">
+          <div class="card-body">
+            <h5 class="card-title text-capitalize fw-bold">${name}</h5>
+            <p class="card-text text-secondary">Id #${id.toString().padStart(4, '0')}</p>
+            <div class="d-flex justify-content-evenly">`;
 
-    if(indice<resultados.length-1){
-      recorre(indice)
-    }
+    types.forEach(tipo => {
+      let objColor = pokemonColors.find(obj => obj.type == tipo.type.name)
+      contenido += `<span class="badge" style="background-color:${objColor.colors[0]};color:white;">${tipo.type.name}</span>`;
+
+    })
+    contenido += `</div>
+          </div>
+        </div>
+      </div>`;
+
+    inputDOMContent.innerHTML += contenido;
   }
-  recorre(0)
+}
 
 
+const carga20 = () => {
+  obtienePokemonLista(OFFSET, 20).then(res => {
+    obtieneDetalle(res.results).then(res => {
+      OFFSET += 20;
+    });
+  })
+}
 
-  // res.results.forEach(async (element, indice) => {
+const limpia = () => {
+  OFFSET = 0;
+  inputDOMContent.innerHTML = '';
+  carga20();
+}
 
-  //   await obtienePokemonId(indice + 1).then(resp => {
-  //     const { name, types, sprites, id } = resp;
+btnCargaMas.addEventListener("click", carga20)
+btnLimpia.addEventListener("click", limpia)
 
-  //     let inputDOMContent = document.querySelector("#inputDOMContent");
+    
 
-  //     inputDOMContent.innerHTML += `
-  //     <div class="col-3 mb-3">
-  //       <div class="card pokemon-card"  >
-  //         <img src="${sprites.other['official-artwork'].front_default}" class="card-img-top" alt="IMAGEN ${name}">
-  //         <div class="card-body">
-  //           <h5 class="card-title text-capitalize">${name}</h5>
-  //           <p class="card-text">ID ${id}</p>
-  //           <a href="#" class="btn btn-success">hola</a>
-  //         </div>
-  //       </div>
-  //     </div>`;
-  //     // continue;
+obtieneDataGlobal().then(async res => {
+  const response = await fetch(`https://pokeapi.co/api/v2/pokemon?offset=0&limit=${res.count}`);
+  const data = await response.json();
+  DATAGLOBAL = data.results;
+  console.log("DATAGLOBAL", DATAGLOBAL)
+});
 
-  //     // types.forEach(tipo=>{
-  //     //   console.log("EL tipo: ",tipo.type.name)
-  //     // })
+inpBusca.addEventListener("keyup",(event)=>{
+  if(event.target.value.toLowerCase() != ''){
+    console.log(event.target.value.toLowerCase())
+    console.log(DATAGLOBAL)
+    const res = DATAGLOBAL.filter((pokemon) => {
+      return pokemon.name.startsWith(event.target.value.toLowerCase());
+    });
+    console.log("RESULTADOOOOOOOOOSSSSSSSSS",res)
 
-  //   })
-
-
-  // });
-
+  }else{
+    limpia();
+  }
 })
 
+carga20();
 
-
-
-// const pokemonColors = {
-//   normal: '#A8A878',
-//   fire: '#F08030',
-//   water: '#6890F0',
-//   electric: '#F8D030',
-//   grass: '#78C850',
-//   ice: '#98D8D8',
-//   fighting: '#C03028',
-//   poison: '#A040A0',
-//   ground: '#E0C068',
-//   flying: '#A890F0',
-//   psychic: '#F85888',
-//   bug: '#A8B820',
-//   rock: '#B8A038',
-//   ghost: '#705898',
-//   dragon: '#7038F8',
-//   dark: '#705848',
-//   steel: '#B8B8D0',
-//   fairy: '#EE99AC'
-// };
-
-// const pokemonColors = [
-//   { type: "Normal", colors: ["#A8A878", "#6D6D4E"] },
-//   { type: "Fire", colors: ["#F08030", "#9B4722"] },
-//   { type: "Water", colors: ["#6890F0", "#445E9C"] },
-//   { type: "Electric", colors: ["#F8D030", "#A1871F"] },
-//   { type: "Grass", colors: ["#78C850", "#4E8234"] },
-//   { type: "Ice", colors: ["#98D8D8", "#638D8D"] },
-//   { type: "Fighting", colors: ["#C03028", "#7D1F1A"] },
-//   { type: "Poison", colors: ["#A040A0", "#682A68"] },
-//   { type: "Ground", colors: ["#E0C068", "#927D44"] },
-//   { type: "Flying", colors: ["#A890F0", "#6D5E9C"] },
-//   { type: "Psychic", colors: ["#F85888", "#A13959"] },
-//   { type: "Bug", colors: ["#A8B820", "#6D7815"] },
-//   { type: "Rock", colors: ["#B8A038", "#786824"] },
-//   { type: "Ghost", colors: ["#705898", "#493963"] },
-//   { type: "Dragon", colors: ["#7038F8", "#4924A1"] },
-//   { type: "Dark", colors: ["#705848", "#49392F"] },
-//   { type: "Steel", colors: ["#B8B8D0", "#787887"] },
-//   { type: "Fairy", colors: ["#EE99AC", "#9B6470"] }
-// ];
-
-
-
-
-
-// obtienePokemonId(25).then(res=>{
-//   console.log("EL 25")
-//   console.table(res)
-// })
