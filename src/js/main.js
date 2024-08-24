@@ -55,7 +55,7 @@ const muestraCardPokemon = (data)=>{
 
   contenido += `
     <div class="col-lg-3 col-md-4 col-xs-2 col-sm-6 col-12 mb-3">
-      <div class="card pokemon-card" data-idPokemon="${id}" >
+      <div class="card pokemon-card" role="button" data-idPokemon="${id}" >
         <img src="${sprites.other['official-artwork'].front_default}" class="card-img-top" alt="IMAGEN ${name}">
         <div class="card-body">
           <h5 class="card-title text-capitalize fw-bold">${name}</h5>
